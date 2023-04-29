@@ -1,0 +1,70 @@
+#!/bin/bash
+
+PACKAGES_DIR="./file/packages"
+EXTENTIONS_DIR="${PACKAGES_DIR}/extensions"
+
+PACKAGES=(
+	["java_deb"]= "https://download.oracle.com/java/20/latest/jdk-20_linux-x64_bin.deb"
+	["bungee_jar"]="https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
+	["paper_jar"]="https://api.papermc.io/v2/projects/paper/versions/1.19.4/builds/511/downloads/paper-1.19.4-511.jar"
+	["velocity_jar"]="https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/250/downloads/velocity-3.2.0-SNAPSHOT-250.jar"
+)
+
+ESSENTIALSX=(
+	["EssentialX"]=""
+	["EssentialXChats"]=""
+	["EssentialXSpawn"]=""
+)
+
+# ESSENTIALSX_LINK=""
+ESSENTIALSX_LINK="EssentialsX/Essentials"
+
+function	download::packages()
+{
+	for key in ${!PACKAGES[*]}; do
+		printf "${key}\n"
+		# curl --location --progress-bar ${PACKAGES[${key}]} --output ${PACKAGES_DIR}/${key}
+	done
+}
+
+function	create::dir()
+{
+	local	dir_path="${1:-}"
+
+	[ -f "${dir_path}" ] && rm -rf "${dir_path}"
+	[ ! -d "${dir_path}" ] && mkdir -p "${dir_path}"
+}
+
+function	prepare::dir()
+{
+	create::dir "${PACKAGES_DIR}"
+	create::dir "${EXTENTIONS_DIR}"
+}
+
+function	git::get_latest()
+{
+	printf ""
+}
+
+function	prepare::Ess::get_latest()
+{
+	local	repo_link="https://api.github.com/repos/${1:-}/releases/latest"
+
+	for link in $(curl -L -# repo_link | \
+		sed -nE 's|^.*"browser_download_url": "(https://.*.jar)"$|\1|p'); do
+		printf "${link}\n"
+	done
+}
+
+function	main::entry()
+{
+	prepare::dir
+	# prepare::Ess::get_latest
+	download::packages
+}
+
+# main::entry
+
+curl --location --progress-bar "https://download.oracle.com/java/20/latest/jdk-20_linux-x64_bin.deb" --output ./packages/java.deb
+curl --location --progress-bar "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar" --output ./packages/bungee.jar
+curl --location --progress-bar "https://api.papermc.io/v2/projects/paper/versions/1.19.4/builds/511/downloads/paper-1.19.4-511.jar" --output ./packages/paper.jar

@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+
+  bungee_server:
+    container_name: bungee_server
+    build:
+      context: "./"
+      dockerfile: "./Dockerfile"
+      target: "bungee"
+      args:
+        APT_INST: ${APT_INST:-}
+        PACKAGES: ${PACKAGES:-}
+    network_mode: "host"
+    volumes:
+      - ./server/bungee:/run/bungee
+
+  lobby_01:
+    container_name: lobby_01
+    depends_on:
+      - bungee_server
+    build:
+      context: "./"
+      dockerfile: "./Dockerfile"
+      target: "paper"
+      args:
+        APT_INST: ${APT_INST:-}
+        PACKAGES: ${PACKAGES:-}
+    networks:
+      net_00:
+        ipv4_address: "12.0.1.10"
+    ports:
+      - "25577:25577/tcp"
+    volumes:
+      - ./server/lobby_01:/run/server
+
+  lobby_02:
+    container_name: lobby_02
+    depends_on:
+      - bungee_server
+    build:
+      context: "./"
+      dockerfile: "./Dockerfile"
+      target: "paper"
+      args:
+        APT_INST: ${APT_INST:-}
+        PACKAGES: ${PACKAGES:-}
+    networks:
+      net_00:
+        ipv4_address: "12.0.1.11"
+    ports:
+      - "25577:25577/tcp"
+    volumes:
+      - ./server/lobby_02:/run/server
+
+  adventure_01:
+    container_name: adventure_01
+    depends_on:
+      - bungee_server
+    build:
+      context: "./"
+      dockerfile: "./Dockerfile"
+      target: "paper"
+      args:
+        APT_INST: ${APT_INST:-}
+        PACKAGES: ${PACKAGES:-}
+    networks:
+      net_00:
+        ipv4_address: "12.0.1.12"
+    ports:
+      - "25577:25577/tcp"
+    volumes:
+      - ./server/adventure_01:/run/server
+
+networks:
+  net_00:
+    name: "net_00"
+    driver: "bridge"
+    ipam:
+      driver: default
+      config:
+        - subnet: "12.0.1.0/24"
+          ip_range: "12.0.1.0/24"
+          gateway: "12.0.1.254"
